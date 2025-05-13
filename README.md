@@ -55,7 +55,7 @@ Follow these instructions to set up the project environment and run the simulati
 
 ### Prerequisites
 
-*   Python (version 3.8 or newer is recommended)
+*   **Python:** This project requires Python. If you don't have Python installed, download the latest version for your OS from [python.org/downloads](https://www.python.org/downloads/) or use a package manager. Python 3.8 or newer is recommended to ensure compatibility with the project dependencies.
 *   `pip` (Python package installer, usually comes with Python)
 *   `git` (version control system)
 
@@ -120,6 +120,18 @@ Once the virtual environment is activated, install the required Python packages:
 pip install -r requirements.txt
 ```
 
+### Environment Tested With
+
+The code and instructions have been tested with the following environment configuration:
+
+*   OS: macOS Sonoma 14.4
+*   Python: 3.10.17
+*   numpy: 1.26.4
+*   scipy: 1.13.0
+*   matplotlib: 3.8.4
+
+While the project might work with other versions, using this setup ensures compatibility.
+
 ## Running the Projects
 
 Each project simulation can be run directly from the terminal:
@@ -156,7 +168,6 @@ python test_project_16.py
 *   **NumPy:** The fundamental package for numerical computation in Python. Used extensively for generating random numbers, array manipulations, and mathematical operations.
 *   **SciPy:** Builds on NumPy and provides a large collection of scientific and technical computing functions. Used here for statistical functions like `trim_mean` and `pearsonr` (correlation coefficient).
 *   **Matplotlib:** A comprehensive library for creating static, animated, and interactive visualizations in Python. Used to generate plots showing convergence of statistics, comparison of estimators, etc.
-*   **Pandas:** (Included in `requirements.txt`) A powerful data analysis and manipulation library. While not directly used in the current project scripts, it's a common tool in the data science ecosystem for handling and analyzing tabular data, which could be a next step for more complex data management or output.
 
 ### Code Structure and Conventions
 
@@ -170,4 +181,3 @@ python test_project_16.py
 
 The source code and project files are hosted on GitHub:
 [https://github.com/b3hr0uz/Prob-Stats](https://github.com/b3hr0uz/Prob-Stats)
-
