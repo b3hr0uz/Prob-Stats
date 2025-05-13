@@ -40,13 +40,16 @@ class TestProject8(unittest.TestCase):
         # Corresponding proportions per side: 0.1, 0.2, 0.3
         estimators1 = calculate_estimators(sample1, total_trim_props_test)
 
-        self.assertAlmostEqual(estimators1['mean'], 21.8) # Sum = 218
+        self.assertAlmostEqual(estimators1['mean'], 11.8) # Sum = 118
         self.assertAlmostEqual(estimators1['median'], 5.5) # (5+6)/2
-        # trim_20% (cut 1 each end: -90, 1, 4, 5, 6, 7, 90, 95) -> mean = 26.0
-        self.assertAlmostEqual(estimators1['trim_20%'], 26.0)
-        # trim_40% (cut 2 each end: 1, 4, 5, 6, 7, 90) -> mean = 18.8333...
+        # trim_20% (total) -> prop_each_end=0.1. Cut 1 from each end: [-90, 1, 4, 5, 6, 7, 90, 95]
+        # Sum = 118. Mean = 118 / 8 = 14.75
+        self.assertAlmostEqual(estimators1['trim_20%'], 14.75)
+        # trim_40% (total) -> prop_each_end=0.2. Cut 2 from each end: [1, 4, 5, 6, 7, 90]
+        # Sum = 113. Mean = 113 / 6 = 18.8333...
         self.assertAlmostEqual(estimators1['trim_40%'], np.mean([1, 4, 5, 6, 7, 90]))
-        # trim_60% (cut 3 each end: 4, 5, 6, 7) -> mean = 5.5
+        # trim_60% (total) -> prop_each_end=0.3. Cut 3 from each end: [4, 5, 6, 7]
+        # Sum = 22. Mean = 22 / 4 = 5.5
         self.assertAlmostEqual(estimators1['trim_60%'], 5.5)
 
         # Test invalid total proportion (e.g., 1.0 or more)
