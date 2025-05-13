@@ -110,22 +110,38 @@ def run_simulation(rng: np.random.Generator, num_repetitions: int,
     print(f"Simulation finished in {time.time() - start_time:.2f} seconds.")
     return results
 
-def analyze_results(results: dict[str, np.ndarray], target_mean: float):
-    """Analyzes the simulation results to find accuracy and precision.
+def analyze_results(results: dict[str, np.ndarray], target_mean: float, project_name: str = "project_7"):
+    """Analyzes the simulation results and plots them.
+
+    Calculates mean, bias, and standard deviation for each estimator.
+    Plots these statistics for visual comparison.
 
     :param results: Dictionary of estimator results from the simulation.
     :type results: dict[str, np.ndarray]
-    :param target_mean: The true mean of the non-contaminant distribution (for accuracy check).
+    :param target_mean: The true mean of the non-contaminant distribution.
     :type target_mean: float
+    :param project_name: Name of the project for saving plot files (e.g., "project_7", "project_8").
+    :type project_name: str
     """
     print("\n--- Analysis Results ---")
     print(f"Target Mean (from Normal component): {target_mean}")
 
+    estimator_names = list(results.keys())
+    avg_values = []
+    biases = []
+    std_devs = []
+
     estimator_stats = {}
-    for name, values in results.items():
+    for name in estimator_names:
+        values = results[name]
         mean_val = np.mean(values)
-        std_dev = np.std(values) # Std dev of the estimator over repetitions
+        std_dev = np.std(values)
         bias = mean_val - target_mean
+
+        avg_values.append(mean_val)
+        biases.append(bias)
+        std_devs.append(std_dev)
+
         estimator_stats[name] = {'mean': mean_val, 'std_dev': std_dev, 'bias': bias}
         print(f"  {name}:")
         print(f"    Average Value = {mean_val:.4f}")
@@ -140,6 +156,52 @@ def analyze_results(results: dict[str, np.ndarray], target_mean: float):
     most_precise = min(estimator_stats.items(), key=lambda item: item[1]['std_dev'])
     print(f"Best (Most Precise) Estimator (smallest standard deviation): {most_precise[0]} (Std Dev: {most_precise[1]['std_dev']:.4f})")
 
+    # --- Plotting ---
+    x_pos = np.arange(len(estimator_names))
+
+    # Plot 1: Average Values
+    fig1, ax1 = plt.subplots(figsize=(12, 7))
+    ax1.bar(x_pos, avg_values, align='center', alpha=0.7, capsize=5)
+    ax1.axhline(target_mean, color='r', linestyle='--', label=f'Target Mean ({target_mean})')
+    ax1.set_ylabel('Average Estimated Value')
+    ax1.set_xticks(x_pos)
+    ax1.set_xticklabels(estimator_names, rotation=45, ha="right")
+    ax1.set_title('Average Value of Estimators Over Repetitions')
+    ax1.legend()
+    ax1.grid(True, axis='y')
+    plt.tight_layout()
+    plt.savefig(f"{project_name}_estimator_averages.png")
+    print(f"Plot of estimator averages saved to {project_name}_estimator_averages.png")
+
+    # Plot 2: Biases
+    fig2, ax2 = plt.subplots(figsize=(12, 7))
+    bars = ax2.bar(x_pos, biases, align='center', alpha=0.7, capsize=5)
+    ax2.axhline(0, color='k', linestyle='--')
+    ax2.set_ylabel('Bias (Average Value - Target Mean)')
+    ax2.set_xticks(x_pos)
+    ax2.set_xticklabels(estimator_names, rotation=45, ha="right")
+    ax2.set_title('Bias of Estimators')
+    ax2.grid(True, axis='y')
+    # Add text labels for bias values
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2.0, yval, f'{yval:.3f}', va='bottom' if yval >=0 else 'top', ha='center')
+    plt.tight_layout()
+    plt.savefig(f"{project_name}_estimator_biases.png")
+    print(f"Plot of estimator biases saved to {project_name}_estimator_biases.png")
+
+    # Plot 3: Standard Deviations
+    fig3, ax3 = plt.subplots(figsize=(12, 7))
+    ax3.bar(x_pos, std_devs, align='center', alpha=0.7, capsize=5, color='green')
+    ax3.set_ylabel('Standard Deviation of Estimator')
+    ax3.set_xticks(x_pos)
+    ax3.set_xticklabels(estimator_names, rotation=45, ha="right")
+    ax3.set_title('Precision of Estimators (Standard Deviation)')
+    ax3.grid(True, axis='y')
+    plt.tight_layout()
+    plt.savefig(f"{project_name}_estimator_std_devs.png")
+    print(f"Plot of estimator standard deviations saved to {project_name}_estimator_std_devs.png")
+    # plt.show() # Uncomment to display plots interactively
 
 def main():
     """Main function to run Project 7 simulation."""
@@ -153,6 +215,7 @@ def main():
     NUM_REPETITIONS = 10000
     TRIM_PROPORTIONS = [0.1, 0.2, 0.3] # Corresponds to 10%, 20%, 30%
     SEED = 44 # Yet another seed
+    PROJECT_NAME = "project_7"
 
     print(f"--- Project 7: Robust Estimators (N(5,1) with U(-100,100) contamination) ---")
     print(f"Parameters: n_normal={N_NORMAL}, n_uniform={N_UNIFORM}, num_repetitions={NUM_REPETITIONS}")
@@ -169,7 +232,7 @@ def main():
                              TRIM_PROPORTIONS)
 
     # --- Analyze Results ---
-    analyze_results(results, MU_NORMAL)
+    analyze_results(results, MU_NORMAL, project_name=PROJECT_NAME)
 
 if __name__ == "__main__":
     main() 
