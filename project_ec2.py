@@ -63,7 +63,8 @@ def calculate_clt_approximation(n_sum_target: int, num_variables: int, prob_succ
     return stats.norm.cdf(-z_score) # Using P(Z > z) = P(Z < -z) for N(0,1)
 
 def plot_distributions(r_nb: int, p_nb: float, mean_norm: float, std_norm: float, 
-                       k_highlight_nb: int, x_highlight_norm: float, filename: str):
+                       k_highlight_nb: int, x_highlight_norm: float, filename: str,
+                       exact_prob_val: float, clt_prob_val: float):
     """Plot the Negative Binomial PMF, its Normal Approximation, and the Standard Normal PDF.
 
     Generates three subplots:
@@ -85,10 +86,14 @@ def plot_distributions(r_nb: int, p_nb: float, mean_norm: float, std_norm: float
     :type x_highlight_norm: float
     :param filename: Name of the file to save the plot.
     :type filename: str
+    :param exact_prob_val: The calculated exact probability P(S_r > k_highlight_nb).
+    :type exact_prob_val: float
+    :param clt_prob_val: The calculated CLT approximated probability.
+    :type clt_prob_val: float
     :return: None
     :rtype: None
     """
-    fig, axs = plt.subplots(3, 1, figsize=(10, 18)) # Increased figure size for 3 plots
+    fig, axs = plt.subplots(3, 1, figsize=(12, 20)) # Increased figure size slightly more
 
     # Subplot 1: Negative Binomial PMF (Distribution of S_r: total trials)
     lower_bound_sr = r_nb 
@@ -96,51 +101,73 @@ def plot_distributions(r_nb: int, p_nb: float, mean_norm: float, std_norm: float
     k_values_sr = np.arange(lower_bound_sr, upper_bound_sr + 1)
     failures_values_nb = k_values_sr - r_nb 
     pmf_values_nb = stats.nbinom.pmf(failures_values_nb, r_nb, p_nb)
-    axs[0].bar(k_values_sr, pmf_values_nb, label=f'NB_trials(r={r_nb}, p={p_nb:.4f}) PMF', alpha=0.7, color='skyblue')
+    
+    # Plot PMF as a line
+    axs[0].plot(k_values_sr, pmf_values_nb, label=f'NB_trials(r={r_nb}, p={p_nb:.4f}) PMF', color='blue', marker='o', linestyle='-', markersize=4, alpha=0.7)
+    
+    # Highlight the area for P(S_r > k_highlight_nb) with distinct bars
     k_fill_sr = np.arange(k_highlight_nb + 1, upper_bound_sr + 1)
     if k_fill_sr.size > 0:
         failures_fill_nb = k_fill_sr - r_nb
         pmf_fill_nb = stats.nbinom.pmf(failures_fill_nb, r_nb, p_nb)
-        axs[0].bar(k_fill_sr, pmf_fill_nb, color='steelblue', alpha=0.7, label=f'P(S_r > {k_highlight_nb})')
-    axs[0].set_title(f'Negative Binomial PMF (Total Trials S_r={r_nb}, p={p_nb:.4f})')
-    axs[0].set_xlabel('k (Total Number of Trials S_r)')
-    axs[0].set_ylabel('Probability Mass P(S_r = k)')
-    axs[0].legend()
-    axs[0].grid(True, linestyle='--', alpha=0.7)
+        axs[0].bar(k_fill_sr, pmf_fill_nb, color='red', alpha=0.6, label=f'$P(S_{{{r_nb}}} > {k_highlight_nb})$')
+    
+    axs[0].set_title(f'Negative Binomial PMF (Total Trials $S_{{{r_nb}}}$, $p={p_nb:.4f}$)', fontsize=14)
+    axs[0].set_xlabel(f'$k$ (Total Number of Trials $S_{{{r_nb}}}$)', fontsize=12)
+    axs[0].set_ylabel(f'Probability Mass $P(S_{{{r_nb}}} = k)$', fontsize=12)
+    
+    # Add probability text
+    axs[0].text(0.03, 0.97, f'$P(S_{{{r_nb}}} > {k_highlight_nb}) = {exact_prob_val:.6f}$',
+                transform=axs[0].transAxes, ha='left', va='top', fontsize=11,
+                bbox=dict(boxstyle='round,pad=0.3', fc='wheat', alpha=0.8))
+    axs[0].legend(fontsize=10)
+    axs[0].grid(True, linestyle='--', alpha=0.6)
 
     # Subplot 2: Normal Approximation PDF for S_r
     lower_bound_norm = mean_norm - 4 * std_norm
     upper_bound_norm = mean_norm + 4 * std_norm
     x_values_norm_approx = np.linspace(lower_bound_norm, upper_bound_norm, 500)
     pdf_values_norm_approx = stats.norm.pdf(x_values_norm_approx, mean_norm, std_norm)
-    axs[1].plot(x_values_norm_approx, pdf_values_norm_approx, label=f'N(\mu={mean_norm:.1f}, \sigma^2={std_norm**2:.1f}) PDF', color='salmon')
+    axs[1].plot(x_values_norm_approx, pdf_values_norm_approx, label=f'$N(\\mu={mean_norm:.2f}, \\sigma^2={std_norm**2:.2f})$ PDF', color='salmon', linewidth=2)
+    
     x_fill_norm_approx = np.linspace(x_highlight_norm, upper_bound_norm, 200)
     pdf_fill_norm_approx = stats.norm.pdf(x_fill_norm_approx, mean_norm, std_norm)
-    axs[1].fill_between(x_fill_norm_approx, pdf_fill_norm_approx, color='orangered', alpha=0.5, label=f'P(Y > {x_highlight_norm:.1f})')
-    axs[1].set_title(f'Normal Approximation PDF for S_r: Y ~ N({mean_norm:.1f}, {std_norm**2:.1f})')
-    axs[1].set_xlabel('x (Approximation for Total Trials S_r)')
-    axs[1].set_ylabel('Probability Density f(x)')
-    axs[1].legend()
-    axs[1].grid(True, linestyle='--', alpha=0.7)
+    axs[1].fill_between(x_fill_norm_approx, pdf_fill_norm_approx, color='orangered', alpha=0.6, label=f'$P(Y > {x_highlight_norm:.1f})$')
+    
+    axs[1].set_title(f'Normal Approximation PDF for $S_{{{r_nb}}}$: $Y \\sim N({mean_norm:.2f}, {std_norm**2:.2f})$', fontsize=14)
+    axs[1].set_xlabel(f'$x$ (Approximation for Total Trials $S_{{{r_nb}}}$)', fontsize=12)
+    axs[1].set_ylabel('Probability Density $f(x)$', fontsize=12)
+    
+    # Add probability text
+    axs[1].text(0.03, 0.97, f'$P(Y > {x_highlight_norm:.1f}) \\approx {clt_prob_val:.6f}$',
+                transform=axs[1].transAxes, ha='left', va='top', fontsize=11,
+                bbox=dict(boxstyle='round,pad=0.3', fc='wheat', alpha=0.8))
+    axs[1].legend(fontsize=10)
+    axs[1].grid(True, linestyle='--', alpha=0.6)
 
     # Subplot 3: Standard Normal PDF N(0,1)
-    z_score_clt = (x_highlight_norm - mean_norm) / std_norm # This is the z_val from main
+    z_score_clt = (x_highlight_norm - mean_norm) / std_norm 
     x_values_std_norm = np.linspace(-4, 4, 500)
     pdf_values_std_norm = stats.norm.pdf(x_values_std_norm, 0, 1)
-    axs[2].plot(x_values_std_norm, pdf_values_std_norm, label='Standard Normal N(0,1) PDF', color='lightgreen')
+    axs[2].plot(x_values_std_norm, pdf_values_std_norm, label='Standard Normal $N(0,1)$ PDF', color='lightgreen', linewidth=2)
     
-    # Highlight P(Z_std > z_score_clt)
-    x_fill_std_norm = np.linspace(z_score_clt, 4, 200) # From z_score_clt to the right tail
+    x_fill_std_norm = np.linspace(z_score_clt, 4, 200) 
     pdf_fill_std_norm = stats.norm.pdf(x_fill_std_norm, 0, 1)
-    axs[2].fill_between(x_fill_std_norm, pdf_fill_std_norm, color='forestgreen', alpha=0.5, label=f'P(Z > {z_score_clt:.5f})')
+    axs[2].fill_between(x_fill_std_norm, pdf_fill_std_norm, color='forestgreen', alpha=0.6, label=f'$P(Z > {z_score_clt:.4f})$')
     
-    axs[2].set_title(f'Standard Normal PDF Z ~ N(0,1)')
-    axs[2].set_xlabel('z (Standard Normal Variable)')
-    axs[2].set_ylabel('Probability Density f(z)')
-    axs[2].legend()
-    axs[2].grid(True, linestyle='--', alpha=0.7)
+    axs[2].set_title('Standard Normal PDF: $Z \\sim N(0,1)$', fontsize=14)
+    axs[2].set_xlabel('$z$ (Standard Normal Variable)', fontsize=12)
+    axs[2].set_ylabel('Probability Density $f(z)$', fontsize=12)
 
-    fig.tight_layout()
+    # Add probability text
+    # The probability P(Z > z_score_clt) is indeed clt_prob_val
+    axs[2].text(0.03, 0.97, f'$P(Z > {z_score_clt:.4f}) \\approx {clt_prob_val:.6f}$',
+                transform=axs[2].transAxes, ha='left', va='top', fontsize=11,
+                bbox=dict(boxstyle='round,pad=0.3', fc='wheat', alpha=0.8))
+    axs[2].legend(fontsize=10)
+    axs[2].grid(True, linestyle='--', alpha=0.6)
+
+    fig.tight_layout(pad=3.0) # Add padding between subplots
     plt.savefig(filename)
     print(f"\nPlot saved to {filename}")
 
@@ -183,7 +210,8 @@ def main():
                        mean_norm=mean_s_clt, std_norm=std_s_clt, 
                        k_highlight_nb=n_sum_target_k, 
                        x_highlight_norm=n_sum_target_k + 0.5, 
-                       filename=f"{project_name}_distributions.png")
+                       filename=f"{project_name}_distributions.png",
+                       exact_prob_val=exact_prob, clt_prob_val=clt_approx_prob)
 
 if __name__ == "__main__":
     main() 
