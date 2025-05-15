@@ -43,24 +43,24 @@ The following projects are included, each with a simulation script (`project_X.p
 **Original Problem Statement:**
 * 16. Simulate n values of a Poisson random variable X = poisson(λ) (choose λ > 0 as you like), and compute the sample mean  ̄x, sample median m, sample standard deviation s. Plot these quantities as functions of n on three separate plots (see a general remark in the end). Do these statistics converge to any limit values, as n → ∞? What are those limits? Do your conclusions agree with the theory? Estimate the variance of  ̄x and m for a particular value of n, such as n = 100 (by generating 10000 random samples of size n and computing the sample variance of the resulting estimates  ̄x and m). Which of these two estimates is better?
 
+### General Remark on Incremental Simulations
+
+(The following applies to projects like 1, 6, and 16 where statistics are plotted as functions of increasing sample size `n` or number of experiments `M`.)
+
+In many projects, you are supposed to generate a sample of n values of a certain random variable, compute some statistics and then plot their values as functions of n. Do this for certain values of n such as n = 100, 200, 300,. . .,10000. This gives you 100 different values of each statistic, well enough for a plot. Important: when increasing n from 100 to 200, then from 200 to 300, etc., do not generate a new sample for every new value of n. Instead, add 100 new values to the old sample (that would make your plots much smoother and nicer).
+
 ### Project EC2: Sum of Geometric Random Variables & CLT Approximation
 
-**Summary:** This project focuses on a sum of 30 independent and identically distributed Geometric random variables (with p=1/6). It involves: 
-1. Deriving the distribution of the sum (Negative Binomial) using Moment Generating Functions (MGFs).
-2. Calculating the exact probability \(P(\sum X_i > 170)\) using the Negative Binomial distribution.
-3. Approximating this probability using the Central Limit Theorem (CLT) with a half-unit correction.
+**Summary:** This project focuses on a sum of 30 independent and identically distributed Geometric random variables (with p=1/6). It involves:
+1. Deriving the distribution of the sum, \(S_{30} = \\sum X_i\), (which is Negative Binomial) using Moment Generating Functions (MGFs).
+2. Calculating the exact probability \\(P(S_{30} > 170)\\). Since \(S_{30}\) follows a Negative Binomial distribution, and `scipy.stats.nbinom` models the number of *failures* (\(F\)) before \(r\) successes (where \(S_r = F+r\)), the condition \\(S_{30} > 170\\) is equivalent to \\(F > 170 - 30 = 140\\). The probability is computed as `stats.nbinom.sf(140, r=30, p=1/6)`.
+3. Approximating this probability using the Central Limit Theorem (CLT). The sum \(S_{30}\) (with mean \(\\mu_S = r/p = 180\) and variance \(\\sigma_S^2 = r(1-p)/p^2 = 900\)) is approximated by a Normal distribution \\(N(180, 900)\\). A half-unit correction is applied, so \\(P(S_{30} > 170)\\) becomes \\(P(Y > 170.5)\\) for \\(Y \\sim N(180, 900)\\), which is then standardized to \\(Z \\sim N(0,1)\\) for calculation.
 
 **Original Problem Statement (from image provided for "Problem 1 (Extra Credit)")**
 * Let \(X_1, \ldots, X_{30}\) denote a random sample of size 30 from a random variable with the pmf
   \[ f(x) = \left(\frac{5}{6}\right)^{x-1} \frac{1}{6}, x=1,2,\ldots \]
   (a) Write an expression (use \(\Sigma\) notation) that calculates the probability \(P(X_1 + \ldots + X_{30} > 170)\). Then write a code evaluating this value. (10)
   (b) Find an approximation of the probability in (a) by the Central Limit Theorem and the half-unit correction. (10)
-
-### General Remark on Incremental Simulations
-
-(The following applies to projects like 1, 6, and 16 where statistics are plotted as functions of increasing sample size `n` or number of experiments `M`.)
-
-In many projects, you are supposed to generate a sample of n values of a certain random variable, compute some statistics and then plot their values as functions of n. Do this for certain values of n such as n = 100, 200, 300,. . .,10000. This gives you 100 different values of each statistic, well enough for a plot. Important: when increasing n from 100 to 200, then from 200 to 300, etc., do not generate a new sample for every new value of n. Instead, add 100 new values to the old sample (that would make your plots much smoother and nicer).
 
 ## Getting Started
 
