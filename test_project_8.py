@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 from scipy import stats
-# Assuming functions are defined in project_8.py (or a shared module)
 from project_8 import generate_contaminated_sample, calculate_estimators, run_simulation
 
 class TestProject8(unittest.TestCase):

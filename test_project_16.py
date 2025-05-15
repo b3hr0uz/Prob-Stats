@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-import matplotlib.pyplot as plt # Not strictly needed for tests, but good for consistency if used elsewhere
 from project_16 import generate_poisson_samples, calculate_stats, run_incremental_simulation, estimate_poisson_estimator_variance
 
 class TestProject16(unittest.TestCase):

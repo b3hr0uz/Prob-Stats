@@ -43,6 +43,19 @@ The following projects are included, each with a simulation script (`project_X.p
 **Original Problem Statement:**
 * 16. Simulate n values of a Poisson random variable X = poisson(λ) (choose λ > 0 as you like), and compute the sample mean  ̄x, sample median m, sample standard deviation s. Plot these quantities as functions of n on three separate plots (see a general remark in the end). Do these statistics converge to any limit values, as n → ∞? What are those limits? Do your conclusions agree with the theory? Estimate the variance of  ̄x and m for a particular value of n, such as n = 100 (by generating 10000 random samples of size n and computing the sample variance of the resulting estimates  ̄x and m). Which of these two estimates is better?
 
+### Project EC2: Sum of Geometric Random Variables & CLT Approximation
+
+**Summary:** This project focuses on a sum of 30 independent and identically distributed Geometric random variables (with p=1/6). It involves: 
+1. Deriving the distribution of the sum (Negative Binomial) using Moment Generating Functions (MGFs).
+2. Calculating the exact probability \(P(\sum X_i > 170)\) using the Negative Binomial distribution.
+3. Approximating this probability using the Central Limit Theorem (CLT) with a half-unit correction.
+
+**Original Problem Statement (from image provided for "Problem 1 (Extra Credit)")**
+* Let \(X_1, \ldots, X_{30}\) denote a random sample of size 30 from a random variable with the pmf
+  \[ f(x) = \left(\frac{5}{6}\right)^{x-1} \frac{1}{6}, x=1,2,\ldots \]
+  (a) Write an expression (use \(\Sigma\) notation) that calculates the probability \(P(X_1 + \ldots + X_{30} > 170)\). Then write a code evaluating this value. (10)
+  (b) Find an approximation of the probability in (a) by the Central Limit Theorem and the half-unit correction. (10)
+
 ### General Remark on Incremental Simulations
 
 (The following applies to projects like 1, 6, and 16 where statistics are plotted as functions of increasing sample size `n` or number of experiments `M`.)
@@ -159,6 +172,7 @@ python test_project_6.py
 python test_project_7.py
 python test_project_8.py
 python test_project_16.py
+python test_project_ec2.py
 ```
 
 ## Technology Stack and Concepts
