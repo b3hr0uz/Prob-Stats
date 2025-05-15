@@ -37,6 +37,27 @@ So, we need to calculate \(P(F > 140)\) where \(F \sim \text{NB_failures}(r=30, 
 Using Python's `scipy.stats.nbinom.sf(f, r, p)` function, which computes \(P(F > f)\) for the failure-parameterized Negative Binomial:
 \[ P(S_{30} > 170) = P(F > 140) = \text{stats.nbinom.sf}(140, 30, 1/6) \approx 0.6031603187 \]
 
+#### Note on Calculation Methods and SciPy Usage
+
+It's important to understand the nuances of calculating probabilities, especially when using libraries like SciPy:
+
+1.  **Equivalence of Approaches**: The probability \(P(S_{30} > 170)\) can be conceptualized in multiple equivalent ways:
+    *   Directly as \(P(S_{30} > 170)\).
+    *   As the complement: \(1 - P(S_{30} \le 170)\).
+    *   When translated to SciPy's `nbinom` (which models failures \(F\)): \(P(F > 140)\).
+    *   The complement in terms of failures: \(1 - P(F \le 140)\).
+    All these lead to the same theoretical probability.
+
+2.  **SciPy's `nbinom` and its Methods**: `scipy.stats.nbinom` is the object representing the Negative Binomial distribution. To get probabilities, we use its methods:
+    *   `.sf(f, r, p)` calculates the Survival Function, \(P(F > f)\).
+    *   `.cdf(f, r, p)` calculates the Cumulative Distribution Function, \(P(F \le f)\).
+    *   `.pmf(f, r, p)` calculates the Probability Mass Function, \(P(F = f)\).
+    Our choice of `stats.nbinom.sf(140, 30, 1/6)` directly computes \(P(F > 140)\).
+
+3.  **Numerical Precision (`.sf` vs. `1 - .cdf`)**: For right-tail probabilities like \(P(F > f)\), using the survival function (`.sf()`) is generally preferred over `1 - .cdf(f)`. While mathematically equivalent, `.sf()` is often implemented to provide better numerical precision, especially when the tail probability is very small (though for \(P(F > 140) \approx 0.603\), the practical difference here might be negligible, using `.sf()` is good practice and more direct).
+
+4.  **The Constant Probability `p`**: The probability of success \(p=1/6\) is a fundamental parameter of the underlying Bernoulli trials. This value remains constant whether we are analyzing the number of failures, total trials, or using different methods of calculation for the resulting Negative Binomial distribution.
+
 ### Part (b): Approximation using Central Limit Theorem (CLT)
 
 The Central Limit Theorem (CLT) states that for a sufficiently large \(n\) (here \(n=30\)), the sum \(S_n\) can be approximated by a Normal distribution:
